@@ -1,7 +1,7 @@
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import MainPage from './MainPage';
-import LoginPage from './auth/LoginPage';
+import LoginPage from './auth/LogAndRegPage';
 import ShopPage from './shop/ShopPage';
 
 const AppRoutes: React.FC = () => {

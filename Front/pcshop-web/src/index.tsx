@@ -6,6 +6,8 @@ import Mainpage from './components/MainPage';
 import reportWebVitals from './reportWebVitals';
 import Navbar from './components/nav/Navbar';
 import AppRoutes from './components/Routes';
+import { store } from './state/store';
+import { Provider } from 'react-redux';
 
 
 const root = ReactDOM.createRoot(
@@ -13,10 +15,12 @@ const root = ReactDOM.createRoot(
 );
 root.render(
   <React.StrictMode>
+ <Provider store={store} >
     <Navbar />
     <Router> 
       <AppRoutes />
     </Router>
+  </Provider>
   </React.StrictMode>
 );
 reportWebVitals();
