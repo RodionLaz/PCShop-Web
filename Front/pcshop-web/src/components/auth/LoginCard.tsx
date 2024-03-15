@@ -1,6 +1,6 @@
+import axios from "axios";
 import React, { useState } from "react";
-//import '../styles/LoginCard.css';
-
+import { AxiosResponse } from "axios";
 interface LoginCardProps {
     logOrRegPage: boolean;
     handleLoginOrNot: (logOrRegPage: boolean) => void;
@@ -18,9 +18,17 @@ const LoginCard = ({ handleLoginOrNot, logOrRegPage }: LoginCardProps) => {
         setPassword(event.target.value);
     }
 
-    const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+    const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
         event.preventDefault(); 
-        // Logic for handling form submission
+        const data = {
+            username:username,
+            password:password
+        }
+        const response : AxiosResponse =await axios.put("http://localhost:3000/Register",data)
+        if(response.status==200){
+            
+        }
+
     }
 
     const handleRegisterClick = () => {
