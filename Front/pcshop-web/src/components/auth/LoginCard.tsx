@@ -24,10 +24,15 @@ const LoginCard = ({ handleLoginOrNot, logOrRegPage }: LoginCardProps) => {
             username:username,
             password:password
         }
-        const response : AxiosResponse =await axios.put("http://localhost:3000/Register",data)
-        if(response.status==200){
-            
+        try{
+            const response : AxiosResponse =await axios.post("http://localhost:8080/Login",data)
+            if(response.status==200){
+                console.log("Logged in")
+            }
+        }catch(e){
+            console.error(e);
         }
+
 
     }
 

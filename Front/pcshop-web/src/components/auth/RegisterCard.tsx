@@ -1,4 +1,6 @@
 import React, { useState } from "react";
+import axios,{ AxiosResponse } from "axios";
+
 
 
 interface RegisterCardProps {
@@ -18,13 +20,31 @@ const RegisterCard = ({ handleLoginOrNot, logOrRegPage }: RegisterCardProps) => 
         setPassword(event.target.value);
     }
 
-    const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+    const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
         event.preventDefault(); 
-        // Logic for handling form submission
+        const data = {
+            username:username,
+            password:password,
+            cart:[]
+        }
+        try{
+            const response : AxiosResponse = await axios.post("http://localhost:8080/Register",data)
+            console.log(data)
+            if(response.status==200){
+            console.log("User created")
+            console.log(response.data)
+            }
+            else{
+                console.log(response);
+            }
+        }catch(e){
+            console.error(e)
+
+        }
     }
 
     const handleLoginClick = () => {
-        handleLoginOrNot(!logOrRegPage); // Toggle the login/register page state
+        handleLoginOrNot(!logOrRegPage); 
     }
 
     return (

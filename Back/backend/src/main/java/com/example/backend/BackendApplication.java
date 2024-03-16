@@ -3,11 +3,13 @@ package com.example.backend;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.data.mongodb.repository.config.EnableMongoRepositories;
 
 import com.mongodb.reactivestreams.client.MongoClient;
 import com.mongodb.reactivestreams.client.MongoClients;
 
 @SpringBootApplication
+@EnableMongoRepositories(basePackages = "com.example.backend")
 public class BackendApplication implements CommandLineRunner{
 
 	public static void main(String[] args) {

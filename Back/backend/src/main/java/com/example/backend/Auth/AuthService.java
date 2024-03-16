@@ -1,4 +1,5 @@
 package com.example.backend.Auth;
+
 import org.bson.Document;
 import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,80 +17,99 @@ import reactor.core.publisher.Mono;
 
 @Service
 public class AuthService {
-    private final AuthInterface authInterface;
+
 
     @Value("${spring.data.mongodb.uri}")
     private String mongoUri;
 
-    @Autowired
-    public AuthService(AuthInterface authInterface){
+    private final AuthInterface authInterface;
+    
+    @Autowired()
+    public AuthService(AuthInterface authInterface) {
         this.authInterface = authInterface;
     }
 
-    public Mono<Void> createUser(String username, String password) {
+    public Mono<Document> createUser(String username, String password) {
         return Mono.from(createUserAsync(username, password));
     }
 
-    private Mono<Void> createUserAsync(String username, String password) {
+    private Mono<Document> createUserAsync(String username, String password) {
         return Mono.fromCallable(() -> {
             try (MongoClient mongoClient = MongoClients.create(mongoUri)) {
                 MongoDatabase database = mongoClient.getDatabase("PCShopDB");
                 MongoCollection<Document> collection = database.getCollection("PCShopCollection");
 
-                String hashedPassword = BCrypt.hashpw(password, BCrypt.gensalt());
+                if(!checkIfUserExsitsAsync(username).block()){
+                
+                    String hashedPassword = BCrypt.hashpw(password, BCrypt.gensalt());
 
-                ObjectId _id = new ObjectId();
-                Document newUser = new Document()
-                        .append("_id", _id)
-                        .append("username", username)
-                        .append("password", hashedPassword)
-                        .append("admin", false)
-                        .append("cart", new Document("items", new Document()));
+                    ObjectId _id = new ObjectId();
+                    Document newUser = new Document()
+                            .append("_id", _id)
+                            .append("username", username)
+                            .append("password", hashedPassword)
+                            .append("admin", false)
+                            .append("cart", new Document("items", new Document()));
+    
+                    collection.insertOne(newUser); 
+                    return  newUser;
+                }
+                else{
+                    throw new RuntimeException("User Already Exists");
+                }
 
-                collection.insertOne(newUser); 
             } catch (Exception e) {
-                System.err.println(e.getMessage());
+                System.err.println("THE Error : " +  e.getMessage());
             }
             return null;
         });
     }
 
-    public Mono<Boolean> authenticate(String username, String password) {
-        return Mono.from(authenticateAsync(username, password));
+    public Mono<Boolean> checkIfUserExsitsAsync(String username){
+        return Mono.fromCallable(() -> checkIfUserExists(username));
+    }
+    private boolean checkIfUserExists(String username) {
+        try (MongoClient mongoClient = MongoClients.create(mongoUri)) {
+            MongoDatabase database = mongoClient.getDatabase("PCShopDB");
+            MongoCollection<Document> collection = database.getCollection("PCShopCollection");
+            Document query = new Document("username", username);
+            Document user = (Document) collection.find(query).first();
+            return user != null;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return true; 
+        }
     }
 
-    private Mono<Boolean> authenticateAsync(String username, String password) {
+    public Mono<Document> authenticate(String username, String password) {
+        return authenticateAsync(username, password);
+    }
+    
+    private Mono<Document> authenticateAsync(String username, String password) {
         return Mono.fromCallable(() -> {
             try (MongoClient mongoClient = MongoClients.create(mongoUri)) {
                 MongoDatabase database = mongoClient.getDatabase("PCShopDB");
                 MongoCollection<Document> collection = database.getCollection("PCShopCollection");
-
+    
                 // Find a user with the matching username
                 Document query = new Document("username", username);
-                Mono<Document> resultMono = (Mono<Document>) collection.find(query).first();
-
-                // Check if a user is found
-                Document user = resultMono.block();
-                if (user != null) {
-                    String storedHashedPassword = user.getString("password");
-
-                    // Validate password (assuming you use BCrypt for hashing)
-                    if (BCrypt.checkpw(password, storedHashedPassword)) {
-                        // Login successful!
-                        return true;
+                return Mono.from(collection.find(query).first()).flatMap(user -> {
+                    if (user != null) {
+                        String storedHashedPassword = user.getString("password");
+                        if (BCrypt.checkpw(password, storedHashedPassword)) {
+                            return Mono.just(user);
+                        } else {
+                            return Mono.error(new RuntimeException("Password Incorrect"));
+                        }
                     } else {
-                        // Password mismatch
-                        return false;
+                        return Mono.error(new RuntimeException("User Doesn't Exist"));
                     }
-                } else {
-                    // Username not found
-                    return false;
-                }
+                });
             } catch (Exception e) {
-                // Handle connection or other errors
                 e.printStackTrace();
-                return false;
+                return Mono.error(new RuntimeException("Error occurred"));
             }
-        });
+        }).flatMap(result -> (Mono<Document>) result);
     }
+    
 }
