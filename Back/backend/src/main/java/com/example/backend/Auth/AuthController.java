@@ -34,7 +34,7 @@ public class AuthController {
             Document user = authService.createUser(username, password).block();
             return ResponseEntity.ok(user);
       } catch (Exception e) {
-            System.err.println("THE Eror : " +  e.getMessage());
+            System.err.println("ERROR from AuthController : " +  e.getMessage());
             return ResponseEntity.badRequest().body(e.getMessage());
       }
     }

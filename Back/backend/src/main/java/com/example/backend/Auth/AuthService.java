@@ -12,8 +12,10 @@ import com.mongodb.reactivestreams.client.MongoClients;
 import com.mongodb.reactivestreams.client.MongoCollection;
 import com.mongodb.reactivestreams.client.MongoDatabase;
 import com.mongodb.client.model.Filters;
+import com.mongodb.client.result.InsertOneResult;
 
 import reactor.core.publisher.Mono;
+import reactor.core.scheduler.Schedulers;
 
 @Service
 public class AuthService {
@@ -23,60 +25,72 @@ public class AuthService {
     private String mongoUri;
 
     private final AuthInterface authInterface;
-    
-    @Autowired()
-    public AuthService(AuthInterface authInterface) {
+    private final MongoClient mongoClient;
+
+    @Autowired
+    public AuthService(AuthInterface authInterface, MongoClient mongoClient) {
         this.authInterface = authInterface;
+        this.mongoClient = mongoClient;
     }
 
     public Mono<Document> createUser(String username, String password) {
-        return Mono.from(createUserAsync(username, password));
+
+            return createUserAsync(username, password)
+            .flatMap(newUser -> Mono.just(newUser))
+            .onErrorResume(error -> Mono.error(new RuntimeException("Error creating user: " + error)));
     }
 
     private Mono<Document> createUserAsync(String username, String password) {
-        return Mono.fromCallable(() -> {
-            try (MongoClient mongoClient = MongoClients.create(mongoUri)) {
-                MongoDatabase database = mongoClient.getDatabase("PCShopDB");
-                MongoCollection<Document> collection = database.getCollection("PCShopCollection");
+        return checkIfUserExistsAsync(username)
+                .flatMap(userExists -> {
+                    if (userExists) {
+                        return Mono.error(new RuntimeException("User Already Exists"));
+                    }
 
-                if(!checkIfUserExsitsAsync(username).block()){
-                
-                    String hashedPassword = BCrypt.hashpw(password, BCrypt.gensalt());
+                    try{
+                        String hashedPassword = BCrypt.hashpw(password, BCrypt.gensalt());
+                        ObjectId _id = new ObjectId();
 
-                    ObjectId _id = new ObjectId();
-                    Document newUser = new Document()
-                            .append("_id", _id)
-                            .append("username", username)
-                            .append("password", hashedPassword)
-                            .append("admin", false)
-                            .append("cart", new Document("items", new Document()));
+                        Document newUser = new Document()
+                                .append("_id", _id)
+                                .append("username", username)
+                                .append("password", hashedPassword)
+                                .append("admin", false)
+                                .append("cart", new Document("items", new Document()));
+
+                        MongoDatabase database = mongoClient.getDatabase("PCShopDB");
+                        MongoCollection<Document> collection = database.getCollection("PCShopCollection");
+                        return Mono.from(collection.insertOne(newUser)).thenReturn(newUser);
+                    
+                    } catch (Exception e) {
+                        System.err.println("ERROR from AuthService : " + e);
+                        return Mono.error(e);
+                    }
+                });
+    }
     
-                    collection.insertOne(newUser); 
-                    return  newUser;
-                }
-                else{
-                    throw new RuntimeException("User Already Exists");
-                }
+    
+    
 
-            } catch (Exception e) {
-                System.err.println("THE Error : " +  e.getMessage());
-            }
-            return null;
-        });
+    public Mono<Boolean> checkIfUserExistsAsync(String username) {
+        return Mono.fromCallable(() -> checkIfUserExists(username))
+                   .subscribeOn(Schedulers.boundedElastic());
     }
-
-    public Mono<Boolean> checkIfUserExsitsAsync(String username){
-        return Mono.fromCallable(() -> checkIfUserExists(username));
-    }
+    //returns true if user already exsits with the same username 
     private boolean checkIfUserExists(String username) {
-        try (MongoClient mongoClient = MongoClients.create(mongoUri)) {
+        try{
+        
             MongoDatabase database = mongoClient.getDatabase("PCShopDB");
             MongoCollection<Document> collection = database.getCollection("PCShopCollection");
+            
             Document query = new Document("username", username);
-            Document user = (Document) collection.find(query).first();
-            return user != null;
+            Mono<Document> userMono = Mono.from(collection.find(query).first());
+
+            return userMono.map(doc -> doc != null).blockOptional().orElse(false);
+           
         } catch (Exception e) {
             e.printStackTrace();
+            System.err.println("THE Error : " + e.getMessage());
             return true; 
         }
     }
@@ -87,11 +101,10 @@ public class AuthService {
     
     private Mono<Document> authenticateAsync(String username, String password) {
         return Mono.fromCallable(() -> {
-            try (MongoClient mongoClient = MongoClients.create(mongoUri)) {
+            try {
                 MongoDatabase database = mongoClient.getDatabase("PCShopDB");
                 MongoCollection<Document> collection = database.getCollection("PCShopCollection");
-    
-                // Find a user with the matching username
+
                 Document query = new Document("username", username);
                 return Mono.from(collection.find(query).first()).flatMap(user -> {
                     if (user != null) {
