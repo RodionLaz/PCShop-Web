@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.RestController;
 
 import ch.qos.logback.classic.net.SyslogAppender;
+import reactor.core.publisher.Mono;
 
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -30,7 +31,6 @@ public class AuthController {
       try {
             String username = (String) requestData.get("username");
             String password = (String) requestData.get("password");
-
             Document user = authService.createUser(username, password).block();
             return ResponseEntity.ok(user);
       } catch (Exception e) {
@@ -40,11 +40,12 @@ public class AuthController {
     }
 
 
-    @PostMapping ("/Login")
-    public ResponseEntity<?> loginController(@RequestBody UserModel request){
+    @PostMapping("/Login")
+    public ResponseEntity<?> loginController(@RequestBody Map<String, Object> requestData){
         try{
-            String username = request.getUsername();
-            String password = request.getPassword();
+            System.out.println("starting Login");
+            String username = (String) requestData.get("username");
+            String password = (String) requestData.get("password");
   
             Document user = authService.authenticate(username, password).block();
             return ResponseEntity.ok(user);

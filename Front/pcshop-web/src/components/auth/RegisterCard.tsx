@@ -1,5 +1,10 @@
 import React, { useState } from "react";
 import axios,{ AxiosResponse } from "axios";
+import { useSelector } from "react-redux";
+import { RootState } from "../../state/store";
+import { useDispatch } from "react-redux";
+import {logIn,saveUsername} from '../../state/user/userSlice';
+import { couldStartTrivia } from "typescript";
 
 
 
@@ -9,6 +14,8 @@ interface RegisterCardProps {
 }
 
 const RegisterCard = ({ handleLoginOrNot, logOrRegPage }: RegisterCardProps) => {
+    const dispatch = useDispatch();
+
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
 
@@ -25,14 +32,17 @@ const RegisterCard = ({ handleLoginOrNot, logOrRegPage }: RegisterCardProps) => 
         const data = {
             username:username,
             password:password,
-            cart:[]
         }
         try{
             const response : AxiosResponse = await axios.post("http://localhost:8080/Register",data)
-            console.log(data)
             if(response.status==200){
             console.log("User created")
+            console.log(response)
             console.log(response.data)
+            dispatch(logIn())
+            dispatch(saveUsername(response.data.username))
+            window.location.href = '/Shop';
+            localStorage.setItem('loggedIn', JSON.stringify(true));
             }
             else{
                 console.log(response);
