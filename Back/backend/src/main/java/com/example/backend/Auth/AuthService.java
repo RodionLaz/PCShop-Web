@@ -62,7 +62,7 @@ public class AuthService {
                                 .append("cart", new Document("items", new Document()));
 
                         MongoDatabase database = mongoClient.getDatabase("PCShopDB");
-                        MongoCollection<Document> collection = database.getCollection("PCShopCollection");
+                        MongoCollection<Document> collection = database.getCollection("UsersCollection");
                         return Mono.from(collection.insertOne(newUser)).thenReturn(newUser);
                     
                     } catch (Exception e) {
@@ -84,7 +84,7 @@ public class AuthService {
         try{
         
             MongoDatabase database = mongoClient.getDatabase("PCShopDB");
-            MongoCollection<Document> collection = database.getCollection("PCShopCollection");
+            MongoCollection<Document> collection = database.getCollection("UsersCollection");
             
             Document query = new Document("username", username);
             Mono<Document> userMono = Mono.from(collection.find(query).first());
@@ -103,7 +103,7 @@ public class AuthService {
     //}
     public Mono<Document> authenticate(String username, String password) {
         MongoDatabase database = mongoClient.getDatabase("PCShopDB");
-        MongoCollection<Document> collection = database.getCollection("PCShopCollection");
+        MongoCollection<Document> collection = database.getCollection("UsersCollection");
         Document query = new Document("username", username);
     
         return Mono.from(collection.find(query).first())
@@ -124,7 +124,7 @@ public class AuthService {
     public Mono<Document> authenticateAsync(String username, String password) {
         return Mono.fromCallable(() -> {
             MongoDatabase database = mongoClient.getDatabase("PCShopDB");
-            MongoCollection<Document> collection = database.getCollection("PCShopCollection");
+            MongoCollection<Document> collection = database.getCollection("UsersCollection");
     
             Document query = new Document("username", username);
             return collection.find(query).first();
@@ -144,7 +144,7 @@ public class AuthService {
         return Mono.fromCallable(() -> {
             try {
                 MongoDatabase database = mongoClient.getDatabase("PCShopDB");
-                MongoCollection<Document> collection = database.getCollection("PCShopCollection");
+                MongoCollection<Document> collection = database.getCollection("UsersCollection");
 
                 Document query = new Document("username", username);
                 return Mono.from(collection.find(query).first()).flatMap(user -> {

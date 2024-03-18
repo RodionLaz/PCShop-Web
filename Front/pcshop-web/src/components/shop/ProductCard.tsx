@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import '../styles/ProductCard.css'
+import {logIn,} from '../../state/user/userSlice';
 import { useDispatch } from "react-redux";
 
 
@@ -15,6 +16,7 @@ interface ProductCardProps {
 }
 
 const ProductCard = (props: ProductCardProps) => {
+    const dispatch = useDispatch();
     const cart = [
         {
             items:{
@@ -24,7 +26,7 @@ const ProductCard = (props: ProductCardProps) => {
 
     ]
     const handleAddToCart = (id:string) =>{
-        useDispatch()
+        
 
     }
     const { title, description, price } = props.product;

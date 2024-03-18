@@ -33,11 +33,10 @@ const Navbar = () =>{
           </div>
         ) : (
           <div className="logged-in-container">
-            <div className="logout-container">
+
                 <div className="logout-button"><LogOut/></div>
               <div className="user-card"><UserCard /></div>
-              
-            </div>
+
             <div className="shop-container">
               <a href="/Shop" className="nav-link">
                 <RiShoppingCartLine className="nav-icon" /> Shop

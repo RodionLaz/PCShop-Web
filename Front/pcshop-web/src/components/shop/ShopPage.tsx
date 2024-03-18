@@ -1,6 +1,6 @@
 import React from "react";
 import ProductCard from "./ProductCard";
-
+import { Link } from 'react-router-dom';
 
 
 const ShopPage = () =>{
@@ -21,6 +21,8 @@ const ShopPage = () =>{
     ]
     
     return(
+        <div>
+            <Link to="/AddProduct" className="add-product-link">Add product</Link>
         <div className="shoPage-container">
         {products.map(product => (
             <div className="product">
@@ -30,6 +32,7 @@ const ShopPage = () =>{
             />
             </div>
         ))}
+    </div>
     </div>
     )
 }
