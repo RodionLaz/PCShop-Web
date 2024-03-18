@@ -1,14 +1,15 @@
-import '../styles/UserCard.css'
+import React from 'react';
+import '../styles/UserCard.css';
 
-const UserCard = () =>{
+const UserCard = () => {
+   
+    const username = localStorage.getItem('username');
 
-return(
-<div className="userCard" >
-
-    hello
-</div>
-
-);
+    return (
+        <div className="userCard">
+            <p>Hello, {username}!</p>
+        </div>
+    );
 }
 
 export default UserCard;

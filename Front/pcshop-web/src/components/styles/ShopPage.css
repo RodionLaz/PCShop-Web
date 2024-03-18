@@ -1,0 +1,35 @@
+.shoPage-container {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+    gap: 20px;
+}
+
+.product {
+    width: 100%;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    padding: 10px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+/* Additional styling for ProductCard */
+.product .product-container {
+    padding: 0; /* Remove padding from ProductCard to fit it nicely into the square */
+}
+
+.product .product-title {
+    font-size: 14px;
+    margin-bottom: 5px;
+}
+
+.product .product-description {
+    display: none; /* Hide the description in the grid layout */
+}
+
+.product .product-price {
+    font-size: 12px;
+}
+
+.product .buy {
+    display: none; /* Hide the button in the grid layout */
+}

@@ -1,0 +1,43 @@
+.Navbar-container {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 20px;
+  background-color: #333; /* Change background color */
+  color: white; /* Change text color */
+}
+
+.login-container {
+  order: 2;
+}
+
+.logged-in-container {
+  display: flex;
+  align-items: center;
+}
+
+.logout-container {
+  display: flex;
+  align-items: center;
+  order: 1; /* Change order */
+}
+
+.user-card {
+  margin-right: 10px;
+}
+
+.shop-container {
+  order: 3;
+  margin-left: auto; /* Move shop button to the right */
+}
+
+.nav-link {
+  text-decoration: none;
+  color: white;
+  display: flex;
+  align-items: center;
+}
+
+.nav-icon {
+  margin-right: 5px;
+}

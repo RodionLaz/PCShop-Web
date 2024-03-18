@@ -42,6 +42,7 @@ const LoginCard = ({ handleLoginOrNot, logOrRegPage }: LoginCardProps) => {
                 dispatch(logIn())
                 dispatch(saveUsername(response.data.username))
                 localStorage.setItem('loggedIn', JSON.stringify(true));
+                localStorage.setItem('username' ,response.data.username);
                 window.location.href = '/Shop';
             }
         }catch(e){

@@ -1,3 +1,11 @@
-.userCard{
-    color: white;
+.userCard {
+  background-color: green;
+  border-radius: 8px;
+  padding: 10px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.userCard p {
+  margin: 0;
+  font-size: 16px;
 }
