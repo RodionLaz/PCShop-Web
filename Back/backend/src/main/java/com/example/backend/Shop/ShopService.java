@@ -3,6 +3,8 @@ package com.example.backend.Shop;
 import org.bson.Document;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Service;
+
 import java.util.List;
 import java.util.ArrayList;
 import com.mongodb.client.MongoClient;
@@ -10,6 +12,7 @@ import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoCursor;
 import com.mongodb.client.MongoDatabase;
 
+@Service
 public class ShopService {
     
     private final ProductInterface productInterface;

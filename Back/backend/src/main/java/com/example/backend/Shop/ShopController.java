@@ -17,14 +17,14 @@ import java.util.Map;
 @RestController
 public class ShopController {
 
-   
+   @Autowired
     private ShopService shopService;
 
     @CrossOrigin(origins = "http://localhost:3000")
     @PostMapping("/Api/Shop/GetAllproucs")
     public ResponseEntity<?> GetProducts(@RequestBody  Map<String, Object> request){
-
-    return ResponseEntity.ok("bug");
+        
+    return ResponseEntity.ok(shopService.getAllProducts());
     }
 
     @PutMapping("/Api/Shop/InsertProduct")
@@ -32,7 +32,7 @@ public class ShopController {
         String title =(String)  request.get("title");
         String description =(String)  request.get("description");
         String price =(String)  request.get("price");
-        String username = (String) request.get("username")
+        String username = (String) request.get("username");
         shopService.insertProduct(title, description, price,username);
         return ResponseEntity.ok(":D");
     }

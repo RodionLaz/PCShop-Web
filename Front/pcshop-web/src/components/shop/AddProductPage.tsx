@@ -38,7 +38,7 @@ const AddProduct = () => {
                 data.username = username.toString();
                 }
             }
-            const response:AxiosResponse = await axios.put("http://localhost:8080//Api/Shop/InsertProduct",data)
+            const response:AxiosResponse = await axios.put("http://localhost:8080/Api/Shop/InsertProduct",data)
             if(response.status==200){
                 console.log(response)
             }else{
